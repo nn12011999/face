@@ -3,6 +3,7 @@ import face_recognition
 import cv2
 import numpy as np
 import time
+import requests
 
 # This is a demo of running face recognition on live video from your webcam. It's a little more complicated than the
 # other example, but it includes some basic performance tweaks to make things run a lot faster:
@@ -59,6 +60,7 @@ while True:
         face_encodings = face_recognition.face_encodings(
             rgb_small_frame, face_locations)
         face_names = []
+        face2send = []
         third = time.time()
         for face_encoding in face_encodings:
             # See if the face is a match for the known face(s)
@@ -78,7 +80,13 @@ while True:
             if matches[best_match_index]:
                 name = known_face_names[best_match_index]
 
+            if name != "Unknown":
+                face2send.append(name)
             face_names.append(name)
+        if len(face_names) > 0:
+            x = requests.post(
+                "http://127.0.0.1:8000/face-identified", json=face2send)
+            time.sleep(0.1)
         process_this_frame = 0
         print("location " + str(round(second-first, 7))
               + "   encoding " + str(round(third-second, 7))

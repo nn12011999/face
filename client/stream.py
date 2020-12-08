@@ -1,6 +1,11 @@
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response, request, jsonify
 import cv2
+import time
+import threading
 
+user_input = ""
+Islocked = False
+face = []
 app = Flask(__name__)
 
 camera = cv2.VideoCapture(0)  # use 0 for web camera
@@ -9,6 +14,7 @@ camera = cv2.VideoCapture(0)  # use 0 for web camera
 
 def gen_frames():  # generate frame by frame from camera
     while True:
+        time.sleep(0.001)
         # Capture frame-by-frame
         success, frame = camera.read()  # read the camera frame
         if not success:
@@ -35,5 +41,43 @@ def index():
     return render_template('index.html')
 
 
+@app.route('/face-identified', methods=['POST'])
+def face_identified():
+    global face
+    face = request.get_json()
+    return jsonify(success=True)
+
+
+def ReadRfid(user_input, Islocked):
+    while True:
+        if not Islocked:
+            try:
+                user_input = input()
+                # Islocked = True
+            except KeyboardInterrupt:
+                break
+        time.sleep(0.1)
+
+
+def LoopCheck(user_input):
+    global face
+    while True:
+        print(face)
+        if user_input != "" and len(face) != 0:
+            if user_input in face:
+                print("yes")
+            else:
+                print("no")
+            user_input = ""
+        time.sleep(0.1)
+
+
 if __name__ == '__main__':
+    mythread = threading.Thread(target=ReadRfid, args=(user_input, Islocked,))
+    mythread.daemon = True
+    mythread.start()
+
+    mythread1 = threading.Thread(target=LoopCheck, args=(user_input,))
+    mythread1.daemon = True
+    mythread1.start()
     app.run(host="127.0.0.1", port="8000", threaded=True)

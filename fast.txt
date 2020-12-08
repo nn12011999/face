@@ -1,0 +1,7 @@
+conda activate facerec
+cd Desktop\final\client
+python stream.py
+
+conda activate facerec
+cd Desktop\final\server
+python server.py

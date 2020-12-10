@@ -1,0 +1,84 @@
+<script src="https://www.gstatic.com/firebasejs/3.7.4/firebase.js"></script>
+    <script>
+      // Initialize Firebase
+      var config = {
+        apiKey: "AIzaSyCfTKQ-5sDNvN3QfC6S4oqeKOnbEv7AxzE",
+        authDomain: "iot-smart-home-door-lock-7ccc9.firebaseapp.com",
+        databaseURL: "https://iot-smart-home-door-lock-7ccc9.firebaseio.com",
+        storageBucket: "iot-smart-home-door-lock-7ccc9.appspot.com",
+        messagingSenderId: "513607106040"
+      };
+      firebase.initializeApp(config);
+
+
+    var bigOne = document.getElementById('bigOne');
+    var dbRef = firebase.database().ref().child('Access');
+    dbRef.on('value', snap => bigOne.innerText = snap.val());
+    </script>
+{% extends 'base.html' %}
+{% block content %}
+    <div class="camera">
+        <h1>Camera</h1>
+        <img src="{{url_for('video_feed')}}"
+            style=
+            "
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+                width: 35%;
+            "
+        >
+    </div>
+    <div class="row">
+        <div class="col-9">
+            <h1>Users information</h1>
+        </div>
+        <div class="col-3">
+            <a class="btn btn-primary btn-lg" href="/register" role="button">Add user</a>
+        </div>
+    </div>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">RFID</th>
+            <th scope="col">Created by time</th>
+            <th scope="col">Action</th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for user in users_info %}
+                <tr>
+                    <td>{{user['name']}}</td>
+                    <td>{{user['rfid']}}</td>
+                    <td>{{user['created_by_time']}}</td>
+                    <td>
+                        <a class="edit" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a class="delete" title="Delete">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <h1>Access log</h1>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Time</th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for user in access_log %}
+                <tr>
+                    <td>{{user['name']}}</td>
+                    <td>{{user['access_by_time']}}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}

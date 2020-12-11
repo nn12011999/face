@@ -38,6 +38,7 @@ Card_check = 0
 Open_at = 0
 Islocked = True
 face = {}
+rfid = ""
 lock = threading.Lock()
 app = Flask(__name__)
 
@@ -86,17 +87,18 @@ def face_identified():
 
 
 def ReadRfid():
-    global user_input,Card_check,Islocked
+    global user_input,Card_check,Islocked,rfid
     while True:
         if Islocked and user_input == None:
             try:
                 temp = input()
                 # Islocked = True
                 print("vui long doi")
-                temp = db.child("Users").child(temp).get()
+                temp1 = db.child("Users").child(temp).get()
                 if temp != None:
                     with lock:
-                        user_input = temp.val()
+                        rfid = temp
+                        user_input = temp1.val()
                         Card_check = time.time()
                         print("plz wait for face recognization")
                 #print(db.child('Users').equal_to(str(user_input)).get().val().values())
@@ -106,7 +108,7 @@ def ReadRfid():
 
 
 def LoopCheck():
-    global face ,user_input,Card_check, Open_at,Islocked,lock
+    global face ,user_input,Card_check, Open_at,Islocked,lock,rfid
     IsChange = False
     while True:
 
@@ -120,6 +122,7 @@ def LoopCheck():
             with lock:
                 user_input = None
                 Card_check = 0
+                rfid = ""
                 print("timeout")
         if t-Open_at > 15 and Open_at!=0:
             with lock:
@@ -128,9 +131,10 @@ def LoopCheck():
                 GPIO.output(ledPin, GPIO.LOW)
                 print("door close")
         if user_input in face and Islocked == True:
-            data = {"name": face[user_input],"rfid":user_input,"time":str(datetime.datetime.now())}
+            data = {"name": user_input,"rfid":rfid,"time":str(datetime.datetime.now())}
             db.child("Access").push(data)
             with lock:
+                rfid = ""
                 user_input = None
                 Card_check = 0
                 Islocked = False

@@ -11,9 +11,44 @@
       firebase.initializeApp(config);
 
 
-    var bigOne = document.getElementById('bigOne');
-    var dbRef = firebase.database().ref().child('Access');
-    dbRef.on('value', snap => bigOne.innerText = snap.val());
+      var firebaseRef = firebase.database().ref().child('Access');
+      firebaseRef.on("value", function(snapshot)
+      {
+            var element = document.getElementById("table");
+            var tbdy = document.createElement('tbody');
+            snapshot.forEach(function(element) {
+                var tr = document.createElement('tr');
+                var td = document.createElement('td');
+                var td1 = document.createElement('td');
+                var td2 = document.createElement('td');
+                td.appendChild(document.createTextNode(element.val()["name"]));
+                td1.appendChild(document.createTextNode(element.val()["rfid"]));
+                td2.appendChild(document.createTextNode(element.val()["time"]));
+                tr.appendChild(td)
+                tr.appendChild(td1)
+                tr.appendChild(td2)
+                tbdy.appendChild(tr);
+          });
+          element.innerHTML = tbdy.innerHTML;
+      })
+      var firebaseRef1 = firebase.database().ref().child('Users');
+      firebaseRef1.on("value", function(snapshot)
+      {
+            var element = document.getElementById("user");
+            var tbdy = document.createElement('tbody');
+            snapshot.forEach(function(element) {
+                console.log(element.val())
+                var tr = document.createElement('tr');
+                var td = document.createElement('td');
+                var td1 = document.createElement('td');
+                td.appendChild(document.createTextNode(element.key);
+                td1.appendChild(document.createTextNode(element.val()));
+                tr.appendChild(td)
+                tr.appendChild(td1)
+                tbdy.appendChild(tr);
+          });
+          element.innerHTML = tbdy.innerHTML;
+      })
     </script>
 {% extends 'base.html' %}
 {% block content %}
@@ -46,33 +81,25 @@
             <th scope="col">Action</th>
         </tr>
         </thead>
-        <tbody>
-            {% for user in users_info %}
+        <tbody id="user">
+            {% for user in access_log %}
                 <tr>
                     <td>{{user['name']}}</td>
-                    <td>{{user['rfid']}}</td>
-                    <td>{{user['created_by_time']}}</td>
-                    <td>
-                        <a class="edit" title="Edit">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <a class="delete" title="Delete">
-                            <i class="fas fa-trash-alt"></i>
-                        </a>
-                    </td>
+                    <td>{{user['access_by_time']}}</td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
     <h1>Access log</h1>
-    <table class="table">
+    <table >
         <thead>
         <tr>
             <th scope="col">Name</th>
+            <th scope="col">rfid</th>
             <th scope="col">Time</th>
         </tr>
         </thead>
-        <tbody>
+        <tbody id="table">
             {% for user in access_log %}
                 <tr>
                     <td>{{user['name']}}</td>
